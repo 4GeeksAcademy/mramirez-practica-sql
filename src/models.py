@@ -17,3 +17,20 @@ class User(db.Model):
             "email": self.email,
             # do not serialize the password, its a security breach
         }
+
+class Student(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name_student = db.Column(db.String(50), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    programming_skills = db.Column(db.Boolean)
+
+    def __repr__(self):
+        return '<Student %r>' % self.name_student
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name_student": self.name_student,
+            "email": self.email,
+            "programming_skills": self.programming_skills
+        } 

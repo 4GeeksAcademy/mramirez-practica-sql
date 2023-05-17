@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User
+from models import db, User, Student
 #from models import Person
 
 app = Flask(__name__)
@@ -37,14 +37,43 @@ def sitemap():
     return generate_sitemap(app)
 
 @app.route('/user', methods=['GET'])
-def handle_hello():
+def get_users():
 
-    response_body = {
-        "msg": "Hello, this is your GET /user response "
-    }
+    users = User.query.all()
 
+    user_list = [
+        {
+            'id': user.id,
+            'email': user.email
+        }
+        for user in users
+    ]
+
+    return jsonify(user_list), 200
+
+
+#STUDENT
+@app.route('/student', methods=['GET'])
+def get_students():
+    allStudents = Student.query.all()
+    result = [element.serialize() for element in allStudents]
+    return jsonify(result), 200
+
+@app.route('/student', methods=['POST'])
+def post_student():
+
+    # obtener los datos de la petición que están en formato JSON a un tipo de datos entendibles por pyton (a un diccionario). En principio, en esta petición, deberían enviarnos 3 campos: el nombre, la descripción del planeta y la población
+    data = request.get_json()
+
+    # creamos un nuevo objeto de tipo Planet
+    student = Student(name_student=data['name_student'], email=data['email'], programming_skills=data['programming_skills'])
+
+    # añadimos el planeta a la base de datos
+    db.session.add(student)
+    db.session.commit()
+
+    response_body = {"msg": "Student inserted successfully"}
     return jsonify(response_body), 200
-
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
